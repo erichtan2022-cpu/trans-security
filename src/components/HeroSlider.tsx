@@ -1,38 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import type { Slide } from '@/hooks/useSiteData';
 
-const slides = [
+const defaultSlides = [
   {
-    img: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496413549_f435fb5c.jpg',
+    image: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496413549_f435fb5c.jpg',
     title: 'Solusi Keamanan Terintegrasi untuk Bisnis Anda',
     sub: 'PT Trans Kontinental Indonesia — Berizin Resmi Mabes Polri',
     cta: 'Konsultasi Gratis',
-    to: '/kontak',
+    link: '/kontak',
   },
   {
-    img: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496433125_fee58a0b.jpg',
+    image: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496433125_fee58a0b.jpg',
     title: 'Tenaga Security Profesional & Bersertifikat',
     sub: 'Dilatih, Disiplin, Siap 24/7 Menjaga Aset Anda',
     cta: 'Lihat Layanan',
-    to: '/layanan',
+    link: '/layanan',
   },
   {
-    img: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496450891_3f72151f.jpg',
+    image: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496450891_3f72151f.jpg',
     title: 'Teknologi Keamanan Modern',
     sub: 'CCTV, Access Control, Guard Tour System Terintegrasi',
     cta: 'Hubungi Kami',
-    to: '/kontak',
+    link: '/kontak',
   },
 ];
 
 const HeroSlider: React.FC = () => {
   const [idx, setIdx] = useState(0);
+  const [slides, setSlides] = useState(defaultSlides);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from('homepage_slides').select('*').order('sort_order');
+      if (data && data.length > 0) {
+        setSlides(data.map((s: Slide) => ({
+          image: s.image, title: s.title, sub: s.sub, cta: s.cta, link: s.link,
+        })));
+      }
+      setLoading(false);
+    })();
+  }, []);
 
   useEffect(() => {
     const t = setInterval(() => setIdx(i => (i + 1) % slides.length), 8000);
     return () => clearInterval(t);
-  }, []);
+  }, [slides.length]);
 
   return (
     <section className="relative h-screen min-h-[600px] w-full overflow-hidden">
@@ -43,7 +59,7 @@ const HeroSlider: React.FC = () => {
         >
           <div
             className="absolute inset-0 ken-burns-slide bg-center bg-cover"
-            style={{ backgroundImage: `url(${s.img})`, animationPlayState: i === idx ? 'running' : 'paused' }}
+            style={{ backgroundImage: `url(${s.img ?? s.image})`, animationPlayState: i === idx ? 'running' : 'paused' }}
             key={`${i}-${idx}`}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-navy/90 via-navy/70 to-navy/40" />
@@ -68,7 +84,7 @@ const HeroSlider: React.FC = () => {
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <Link
-                    to={s.to}
+                    to={s.link}
                     className="inline-flex items-center gap-2 bg-gold hover:bg-gold-dark text-navy font-bold px-7 py-4 rounded-md uppercase tracking-wide text-sm transition-all shadow-xl hover:shadow-2xl hover:scale-105"
                   >
                     {s.cta} <ArrowRight className="w-4 h-4" />

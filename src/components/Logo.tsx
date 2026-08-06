@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 
 interface LogoProps {
   variant?: 'dark' | 'light';
@@ -7,9 +8,31 @@ interface LogoProps {
 }
 
 const Logo: React.FC<LogoProps> = ({ variant = 'dark', size = 'md' }) => {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [brandName, setBrandName] = useState<string>('TRANS SECURITY');
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from('site_settings').select('logo_header_url, brand_name').eq('id', 1).maybeSingle();
+      if (data) {
+        if (data.logo_header_url) setLogoUrl(data.logo_header_url);
+        if (data.brand_name) setBrandName(data.brand_name);
+      }
+    })();
+  }, []);
+
   const textColor = variant === 'light' ? 'text-white' : 'text-navy';
   const sizeClass = size === 'sm' ? 'h-8 w-8' : size === 'lg' ? 'h-14 w-14' : 'h-11 w-11';
   const titleSize = size === 'sm' ? 'text-base' : size === 'lg' ? 'text-2xl' : 'text-xl';
+
+  if (logoUrl) {
+    return (
+      <Link to="/" className="flex items-center gap-3 group">
+        <img src={logoUrl} alt={brandName} className={`${sizeClass} object-contain`} />
+        <span className={`font-heading font-extrabold ${titleSize} text-gold tracking-tight`}>{brandName}</span>
+      </Link>
+    );
+  }
 
   return (
     <Link to="/" className="flex items-center gap-3 group">
@@ -31,7 +54,7 @@ const Logo: React.FC<LogoProps> = ({ variant = 'dark', size = 'md' }) => {
       </div>
       <div className="flex flex-col leading-tight">
         <span className={`font-heading font-extrabold ${titleSize} text-gold tracking-tight`}>
-          TRANS SECURITY
+          {brandName}
         </span>
         <span className={`text-[10px] uppercase tracking-[0.2em] ${variant === 'light' ? 'text-white/70' : 'text-navy/60'} hidden sm:block`}>
           PT Trans Kontinental Indonesia

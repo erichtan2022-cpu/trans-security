@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Phone } from 'lucide-react';
 import Logo from './Logo';
+import { supabase } from '@/lib/supabase';
+import type { NavItem } from '@/hooks/useSiteData';
 
-const navLinks = [
+const defaultNav: NavItem[] = [
   { to: '/', label: 'Beranda' },
   { to: '/tentang-kami', label: 'Tentang' },
   { to: '/layanan', label: 'Layanan' },
@@ -13,11 +15,20 @@ const navLinks = [
   { to: '/kontak', label: 'Kontak' },
 ];
 
-
 const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [navLinks, setNavLinks] = useState<NavItem[]>(defaultNav);
   const location = useLocation();
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from('site_settings').select('nav_menu').eq('id', 1).maybeSingle();
+      if (data?.nav_menu && Array.isArray(data.nav_menu) && data.nav_menu.length > 0) {
+        setNavLinks(data.nav_menu);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);

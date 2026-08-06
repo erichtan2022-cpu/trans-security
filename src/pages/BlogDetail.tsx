@@ -1,13 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Calendar, Clock, User, ArrowLeft, ArrowRight, Tag, Facebook, Twitter, Linkedin, Link as LinkIcon, Share2 } from 'lucide-react';
 import PageLayout from '@/components/PageLayout';
 import PageHero from '@/components/PageHero';
-import { blogPosts } from '@/data/blog';
+import { supabase } from '@/lib/supabase';
+import type { BlogPost } from '@/hooks/useSiteData';
 import { useToast } from '@/hooks/use-toast';
 
 const renderParagraph = (text: string, i: number) => {
-  // Bold markdown **text**
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return (
     <p key={i} className="text-navy/80 leading-relaxed mb-5 text-[15px] lg:text-base">
@@ -25,14 +25,36 @@ const renderParagraph = (text: string, i: number) => {
 const BlogDetail: React.FC = () => {
   const { slug } = useParams();
   const { toast } = useToast();
-  const post = blogPosts.find(p => p.slug === slug);
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [allPosts, setAllPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const [p, all] = await Promise.all([
+        supabase.from('blog_posts').select('*').eq('slug', slug).maybeSingle(),
+        supabase.from('blog_posts').select('*').order('created_at', { ascending: false }),
+      ]);
+      setPost(p.data);
+      setAllPosts(all.data ?? []);
+      setLoading(false);
+    })();
+  }, [slug]);
 
   const related = useMemo(() => {
     if (!post) return [];
-    return blogPosts
+    return allPosts
       .filter(p => p.slug !== post.slug && (p.category === post.category || p.tags.some(t => post.tags.includes(t))))
       .slice(0, 3);
-  }, [post]);
+  }, [post, allPosts]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="py-20 text-center text-navy/40">Memuat artikel...</div>
+      </PageLayout>
+    );
+  }
 
   if (!post) {
     return (
@@ -87,7 +109,7 @@ const BlogDetail: React.FC = () => {
                 <Tag className="w-3 h-3" />{post.category}
               </span>
               <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-gold" />{post.date}</span>
-              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-gold" />{post.readTime}</span>
+              <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-gold" />{post.read_time}</span>
               <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-gold" />{post.author}</span>
             </div>
 
@@ -160,7 +182,7 @@ const BlogDetail: React.FC = () => {
                 </div>
                 <div>
                   <p className="font-heading font-bold text-navy">{post.author}</p>
-                  <p className="text-xs text-navy/60 uppercase tracking-wider">{post.authorRole}</p>
+                  <p className="text-xs text-navy/60 uppercase tracking-wider">{post.author_role}</p>
                 </div>
               </div>
               <p className="text-sm text-navy/70 leading-relaxed">
@@ -181,7 +203,7 @@ const BlogDetail: React.FC = () => {
             <div className="bg-grey p-6 rounded-xl">
               <h4 className="font-heading text-sm uppercase tracking-wider text-navy/60 mb-4">Artikel Terbaru</h4>
               <ul className="space-y-4">
-                {blogPosts.filter(p => p.slug !== post.slug).slice(0, 4).map(p => (
+                {allPosts.filter(p => p.slug !== post.slug).slice(0, 4).map(p => (
                   <li key={p.slug}>
                     <Link to={`/blog/${p.slug}`} className="flex gap-3 group">
                       <img src={p.image} alt={p.title} className="w-16 h-16 rounded-md object-cover flex-shrink-0" />
@@ -223,7 +245,7 @@ const BlogDetail: React.FC = () => {
                     <h4 className="font-heading font-bold text-navy mb-2 leading-snug group-hover:text-gold transition-colors line-clamp-2">{p.title}</h4>
                     <p className="text-xs text-navy/60 flex items-center gap-3">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{p.date}</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.readTime}</span>
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{p.read_time}</span>
                     </p>
                   </div>
                 </Link>

@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Linkedin, Instagram, Mail, Phone, MapPin, Send } from 'lucide-react';
 import Logo from './Logo';
+import { supabase } from '@/lib/supabase';
+import type { ContactInfo, NavItem } from '@/hooks/useSiteData';
+
+const defaultNav: NavItem[] = [
+  { to: '/', label: 'Beranda' },
+  { to: '/tentang-kami', label: 'Tentang Kami' },
+  { to: '/layanan', label: 'Layanan' },
+  { to: '/klien', label: 'Klien & Testimoni' },
+  { to: '/blog', label: 'Blog & News' },
+  { to: '/karir', label: 'Karir' },
+  { to: '/kontak', label: 'Kontak' },
+];
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [contact, setContact] = useState<ContactInfo | null>(null);
+  const [navLinks, setNavLinks] = useState<NavItem[]>(defaultNav);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const [ci, ss] = await Promise.all([
+        supabase.from('contact_info').select('*').eq('id', 1).maybeSingle(),
+        supabase.from('site_settings').select('nav_menu, logo_footer_url, brand_name').eq('id', 1).maybeSingle(),
+      ]);
+      if (ci.data) setContact(ci.data);
+      if (ss.data?.nav_menu && Array.isArray(ss.data.nav_menu) && ss.data.nav_menu.length > 0) {
+        setNavLinks(ss.data.nav_menu);
+      }
+      if (ss.data?.logo_footer_url) setLogoUrl(ss.data.logo_footer_url);
+    })();
+  }, []);
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +59,14 @@ const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
-            <Logo variant="light" />
+            {logoUrl ? (
+              <Link to="/" className="flex items-center gap-3 mb-4">
+                <img src={logoUrl} alt="Logo" className="h-11 w-11 object-contain" />
+                <span className="font-heading font-extrabold text-xl text-gold">TRANS SECURITY</span>
+              </Link>
+            ) : (
+              <Logo variant="light" />
+            )}
             <p className="mt-5 text-white/70 text-sm leading-relaxed">
               PT Trans Kontinental Indonesia — penyedia jasa keamanan profesional berizin resmi Mabes Polri. Melindungi aset, manusia, dan reputasi sejak 2013.
             </p>
@@ -47,15 +83,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="font-heading text-gold uppercase tracking-wider text-sm mb-5">Link Cepat</h4>
             <ul className="space-y-3 text-sm">
-              {[
-                { to: '/', label: 'Beranda' },
-                { to: '/tentang-kami', label: 'Tentang Kami' },
-                { to: '/layanan', label: 'Layanan' },
-                { to: '/klien', label: 'Klien & Testimoni' },
-                { to: '/blog', label: 'Blog & News' },
-                { to: '/karir', label: 'Karir' },
-                { to: '/kontak', label: 'Kontak' },
-              ].map(l => (
+              {navLinks.map(l => (
                 <li key={l.to}>
                   <Link to={l.to} className="text-white/70 hover:text-gold transition-colors inline-flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-gold rounded-full"></span>
@@ -89,9 +117,9 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="font-heading text-gold uppercase tracking-wider text-sm mb-5">Hubungi Kami</h4>
             <ul className="space-y-4 text-sm text-white/80">
-              <li className="flex gap-3"><MapPin className="w-5 h-5 text-gold flex-shrink-0" />Jl. Raya Serpong KM 7, Tangerang Selatan, Banten 15310</li>
-              <li className="flex gap-3"><Phone className="w-5 h-5 text-gold flex-shrink-0" />021-XXXXXXX (24 Jam)</li>
-              <li className="flex gap-3"><Mail className="w-5 h-5 text-gold flex-shrink-0" />info@trans-security.co.id</li>
+              <li className="flex gap-3"><MapPin className="w-5 h-5 text-gold flex-shrink-0" />{contact?.address ?? 'Jl. Raya Serpong KM 7, Tangerang Selatan, Banten 15310'}</li>
+              <li className="flex gap-3"><Phone className="w-5 h-5 text-gold flex-shrink-0" />{contact?.phone ?? '021-XXXXXXX (24 Jam)'}</li>
+              <li className="flex gap-3"><Mail className="w-5 h-5 text-gold flex-shrink-0" />{contact?.email ?? 'info@trans-security.co.id'}</li>
             </ul>
             <form onSubmit={handleSubscribe} className="mt-5">
               <label className="text-xs uppercase tracking-wider text-gold">Newsletter</label>

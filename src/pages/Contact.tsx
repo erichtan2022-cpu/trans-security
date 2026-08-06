@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Check, Send } from 'lucide-react';
 import PageLayout from '@/components/PageLayout';
 import PageHero from '@/components/PageHero';
+import { supabase } from '@/lib/supabase';
+import type { ContactInfo } from '@/hooks/useSiteData';
 
 const Contact: React.FC = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [contact, setContact] = useState<ContactInfo | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from('contact_info').select('*').eq('id', 1).maybeSingle();
+      if (data) setContact(data);
+    })();
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +39,13 @@ const Contact: React.FC = () => {
     }
   };
 
+  const infoCards = [
+    { icon: MapPin, title: 'Alamat', desc: contact?.address ?? 'Jl. Raya Serpong KM 7, Tangerang Selatan, Banten 15310' },
+    { icon: Phone, title: 'Telepon', desc: contact?.phone ?? '021-XXXXXXX (24 Jam)' },
+    { icon: Mail, title: 'Email', desc: contact?.email ?? 'info@trans-security.co.id' },
+    { icon: Clock, title: 'Operasional', desc: contact?.hours ?? '24 Jam Command Center' },
+  ];
+
   return (
     <PageLayout>
       <PageHero
@@ -37,15 +54,9 @@ const Contact: React.FC = () => {
         breadcrumb={[{ label: 'Kontak' }]}
       />
 
-      {/* Info Cards */}
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[
-            { icon: MapPin, title: 'Alamat', desc: 'Jl. Raya Serpong KM 7, Tangerang Selatan, Banten 15310' },
-            { icon: Phone, title: 'Telepon', desc: '021-XXXXXXX (24 Jam)' },
-            { icon: Mail, title: 'Email', desc: 'info@trans-security.co.id' },
-            { icon: Clock, title: 'Operasional', desc: '24 Jam Command Center' },
-          ].map((c, i) => {
+          {infoCards.map((c, i) => {
             const Icon = c.icon;
             return (
               <div key={i} className="service-card bg-grey p-6 rounded-xl">
@@ -60,7 +71,6 @@ const Contact: React.FC = () => {
         </div>
       </section>
 
-      {/* Form + Map */}
       <section className="py-16 bg-grey">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-10">
           <div>
@@ -89,14 +99,14 @@ const Contact: React.FC = () => {
             <div className="w-16 h-1 bg-gold mb-5"></div>
             <div className="aspect-[4/3] rounded-xl overflow-hidden shadow-md border-4 border-white">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.6!2d106.6755!3d-6.3175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTknMDMuMCJTIDEwNsKwNDAnMzEuOCJF!5e0!3m2!1sen!2sid!4v1700000000000"
+                src={contact?.map_embed || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.6!2d106.6755!3d-6.3175!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwMTknMDMuMCJTIDEwNsKwNDAnMzEuOCJF!5e0!3m2!1sen!2sid!4v1700000000000"}
                 width="100%" height="100%" style={{ border: 0 }} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"
                 title="Trans Security Office Location"
               />
             </div>
             <div className="bg-navy text-white p-6 rounded-xl mt-5">
               <h4 className="font-heading font-bold mb-2 text-gold uppercase tracking-wider text-sm">Emergency Hotline</h4>
-              <p className="text-2xl font-heading font-extrabold">021-XXXXXXX</p>
+              <p className="text-2xl font-heading font-extrabold">{contact?.hotline ?? '021-XXXXXXX'}</p>
               <p className="text-white/70 text-sm mt-1">Tersedia 24 jam untuk klien aktif kami</p>
             </div>
           </div>

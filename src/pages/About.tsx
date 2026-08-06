@@ -1,11 +1,29 @@
-import React from 'react';
-import { CheckCircle2, Target, Eye, Award } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CircleCheck as CheckCircle2, Target, Eye, Award } from 'lucide-react';
 import PageLayout from '@/components/PageLayout';
 import PageHero from '@/components/PageHero';
 import SectionTitle from '@/components/SectionTitle';
-import { timeline, legality, directors } from '@/data/site';
+import { supabase } from '@/lib/supabase';
+import type { TimelineItem, LegalityItem, Director } from '@/hooks/useSiteData';
 
 const About: React.FC = () => {
+  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
+  const [legality, setLegality] = useState<LegalityItem[]>([]);
+  const [directors, setDirectors] = useState<Director[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const [t, l, d] = await Promise.all([
+        supabase.from('timeline').select('*').order('sort_order'),
+        supabase.from('legality').select('*').order('sort_order'),
+        supabase.from('directors').select('*').order('sort_order'),
+      ]);
+      setTimeline(t.data ?? []);
+      setLegality(l.data ?? []);
+      setDirectors(d.data ?? []);
+    })();
+  }, []);
+
   return (
     <PageLayout>
       <PageHero
@@ -63,13 +81,13 @@ const About: React.FC = () => {
           <div className="relative mt-12">
             <div className="absolute left-4 lg:left-1/2 lg:-translate-x-1/2 top-0 bottom-0 w-0.5 bg-gold/40"></div>
             {timeline.map((t, i) => (
-              <div key={i} className={`relative flex flex-col lg:flex-row gap-6 mb-10 lg:mb-14 ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
+              <div key={t.id} className={`relative flex flex-col lg:flex-row gap-6 mb-10 lg:mb-14 ${i % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}>
                 <div className="absolute left-4 lg:left-1/2 lg:-translate-x-1/2 w-4 h-4 rounded-full bg-gold border-4 border-white ring-2 ring-gold/40 z-10 mt-1.5"></div>
                 <div className="lg:w-1/2 pl-12 lg:pl-0 lg:px-8">
                   <div className={`bg-white p-6 rounded-xl shadow-md border-t-4 border-gold ${i % 2 === 0 ? 'lg:text-right' : ''}`}>
                     <span className="font-heading text-2xl font-extrabold text-gold">{t.year}</span>
                     <h3 className="font-heading font-bold text-navy mt-1 mb-2 text-lg">{t.title}</h3>
-                    <p className="text-sm text-navy/70 leading-relaxed">{t.desc}</p>
+                    <p className="text-sm text-navy/70 leading-relaxed">{t.description}</p>
                   </div>
                 </div>
                 <div className="lg:w-1/2"></div>
@@ -84,13 +102,13 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle eyebrow="Legalitas" title="Resmi, Terpercaya, Bersertifikat" center />
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-10">
-            {legality.map((l, i) => (
-              <div key={i} className="service-card bg-grey p-7 rounded-xl text-center">
+            {legality.map((l) => (
+              <div key={l.id} className="service-card bg-grey p-7 rounded-xl text-center">
                 <div className="w-16 h-16 mx-auto rounded-full bg-gold/15 flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-9 h-9 text-gold" />
                 </div>
                 <h3 className="font-heading font-bold text-navy mb-2">{l.title}</h3>
-                <p className="text-sm text-navy/70">{l.desc}</p>
+                <p className="text-sm text-navy/70">{l.description}</p>
               </div>
             ))}
           </div>
@@ -102,8 +120,8 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionTitle eyebrow="Tim Kami" title="Pemimpin di Balik Trans Security" center />
           <div className="grid md:grid-cols-3 gap-8 mt-10">
-            {directors.map((d, i) => (
-              <div key={i} className="group relative overflow-hidden rounded-xl shadow-lg">
+            {directors.map((d) => (
+              <div key={d.id} className="group relative overflow-hidden rounded-xl shadow-lg">
                 <img src={d.img} alt={d.name} className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500" />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white translate-y-4 group-hover:translate-y-0 transition-transform">
