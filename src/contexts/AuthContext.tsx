@@ -43,7 +43,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error?.message ?? null };
+    if (error) {
+      if (error.message.includes('Database error') || error.message.includes('unexpected_failure')) {
+        return { error: 'Terjadi masalah koneksi ke server. Silakan coba lagi.' };
+      }
+      if (error.message.includes('Invalid login')) {
+        return { error: 'Email atau password salah.' };
+      }
+      return { error: error.message };
+    }
+    return { error: null };
   };
 
   const signOut = async () => {
@@ -56,3 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </AuthContext.Provider>
   );
 };
+
+
+export { useAuth }
