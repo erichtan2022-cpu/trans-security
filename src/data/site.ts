@@ -134,7 +134,7 @@ export const directors = [
 ];
 
 export const timeline = [
-  { year: '2013', title: 'Berdiri', desc: 'PT Trans Kontinental Indonesia resmi didirikan dengan visi menjadi penyedia jasa keamanan terdepan.' },
+  { year: '2013', title: 'Berdiri', desc: 'Trans Security Indonesia resmi didirikan dengan visi menjadi penyedia jasa keamanan terdepan.' },
   { year: '2015', title: 'Ekspansi Jabodetabek', desc: 'Memperluas layanan ke seluruh wilayah Jakarta, Bogor, Depok, Tangerang, dan Bekasi.' },
   { year: '2018', title: '500+ Personel', desc: 'Mencapai 500 personel aktif dengan klien dari berbagai sektor: perbankan, ritel, dan manufaktur.' },
   { year: '2023', title: '1000+ Personel & Command Center', desc: 'Meluncurkan Command Center 24/7 modern dengan teknologi AI Analytics dan monitoring real-time.' },

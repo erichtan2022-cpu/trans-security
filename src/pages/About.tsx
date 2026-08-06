@@ -38,11 +38,11 @@ const About: React.FC = () => {
           <div>
             <span className="uppercase tracking-[0.3em] text-xs font-bold text-gold">Profil Perusahaan</span>
             <h2 className="font-heading text-3xl lg:text-4xl font-extrabold text-navy mt-3 mb-4">
-              PT Trans Kontinental Indonesia
+              Trans Security Indonesia
             </h2>
             <div className="w-16 h-1 bg-gold mb-5"></div>
             <p className="text-navy/80 leading-relaxed mb-4">
-              Berdiri sejak <strong>tahun 2013</strong>, PT Trans Kontinental Indonesia adalah perusahaan jasa keamanan profesional yang berizin resmi dari Mabes Polri. Kami melayani sektor korporat, manufaktur, perbankan, perumahan, dan pusat perbelanjaan dengan standar layanan kelas dunia.
+              Berdiri sejak <strong>tahun 2013</strong>, Trans Security Indonesia adalah perusahaan jasa keamanan profesional yang berizin resmi dari Mabes Polri. Kami melayani sektor korporat, manufaktur, perbankan, perumahan, dan pusat perbelanjaan dengan standar layanan kelas dunia.
             </p>
             <p className="text-navy/80 leading-relaxed mb-6">
               Dengan lebih dari 1.000 personel terlatih, command center 24/7, dan teknologi keamanan termutakhir, kami menjadi mitra terpercaya untuk melindungi aset, manusia, dan reputasi bisnis Anda.

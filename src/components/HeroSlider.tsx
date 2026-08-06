@@ -8,7 +8,7 @@ const defaultSlides = [
   {
     image: 'https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496413549_f435fb5c.jpg',
     title: 'Solusi Keamanan Terintegrasi untuk Bisnis Anda',
-    sub: 'PT Trans Kontinental Indonesia — Berizin Resmi Mabes Polri',
+    sub: 'Trans Security Indonesia — Berizin Resmi Mabes Polri',
     cta: 'Konsultasi Gratis',
     link: '/kontak',
   },

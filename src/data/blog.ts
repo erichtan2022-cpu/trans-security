@@ -132,7 +132,7 @@ export const blogPosts: BlogPost[] = [
     category: 'Company News',
     tags: ['News', 'Command Center', 'Inovasi'],
     content: [
-      'PT Trans Kontinental Indonesia dengan bangga mengumumkan peluncuran Command Center generasi baru yang dilengkapi teknologi AI dan integrasi multi-platform.',
+      'Trans Security Indonesia dengan bangga mengumumkan peluncuran Command Center generasi baru yang dilengkapi teknologi AI dan integrasi multi-platform.',
       '**Kapasitas Baru** — Fasilitas seluas 350m² mampu monitoring simultan lebih dari 5.000 kamera CCTV dari 100+ lokasi klien di seluruh Indonesia.',
       '**Teknologi Inti** — Video Management System dengan AI Analytics, GPS tracking real-time untuk patroli mobile, Two-way radio integration, dan dashboard analytics untuk klien.',
       '**Operasional 24/7** — Command center beroperasi dengan 4 shift rotasi, dipimpin Supervisor bersertifikat Gada Utama dengan minimum 10 tahun pengalaman.',

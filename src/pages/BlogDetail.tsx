@@ -186,7 +186,7 @@ const BlogDetail: React.FC = () => {
                 </div>
               </div>
               <p className="text-sm text-navy/70 leading-relaxed">
-                Praktisi keamanan profesional di PT Trans Kontinental Indonesia, berpengalaman lebih dari satu dekade melayani klien korporat di Indonesia.
+                Praktisi keamanan profesional di Trans Security Indonesia, berpengalaman lebih dari satu dekade melayani klien korporat di Indonesia.
               </p>
             </div>
 

@@ -68,7 +68,7 @@ const Footer: React.FC = () => {
               <Logo variant="light" />
             )}
             <p className="mt-5 text-white/70 text-sm leading-relaxed">
-              PT Trans Kontinental Indonesia — penyedia jasa keamanan profesional berizin resmi Mabes Polri. Melindungi aset, manusia, dan reputasi sejak 2013.
+              Trans Security Indonesia — penyedia jasa keamanan profesional berizin resmi Mabes Polri. Melindungi aset, manusia, dan reputasi sejak 2013.
             </p>
             <div className="flex gap-3 mt-6">
               <a href="#" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-white/10 hover:bg-gold hover:text-navy flex items-center justify-center transition-all">
@@ -145,7 +145,7 @@ const Footer: React.FC = () => {
 
       <div className="border-t border-white/10 py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/60">
-          <p>© 2026 PT Trans Kontinental Indonesia. All Rights Reserved.</p>
+          <p>© 2026 Trans Security Indonesia. All Rights Reserved.</p>
           <p>Berizin Resmi Mabes Polri | SIA | ABUJAPI</p>
         </div>
       </div>

@@ -57,7 +57,7 @@ const Logo: React.FC<LogoProps> = ({ variant = 'dark', size = 'md' }) => {
           {brandName}
         </span>
         <span className={`text-[10px] uppercase tracking-[0.2em] ${variant === 'light' ? 'text-white/70' : 'text-navy/60'} hidden sm:block`}>
-          PT Trans Kontinental Indonesia
+          Trans Security Indonesia
         </span>
       </div>
     </Link>
