@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Linkedin, Instagram, Mail, Phone, MapPin, Send } from 'lucide-react';
 import Logo from './Logo';
 import { supabase } from '@/lib/supabase';
-import type { ContactInfo, NavItem } from '@/hooks/useSiteData';
+import type { ContactInfo, NavItem, SiteSettings } from '@/hooks/useSiteData';
 
 const defaultNav: NavItem[] = [
   { to: '/', label: 'Beranda' },
@@ -21,18 +21,22 @@ const Footer: React.FC = () => {
   const [contact, setContact] = useState<ContactInfo | null>(null);
   const [navLinks, setNavLinks] = useState<NavItem[]>(defaultNav);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
 
   useEffect(() => {
     (async () => {
       const [ci, ss] = await Promise.all([
         supabase.from('contact_info').select('*').eq('id', 1).maybeSingle(),
-        supabase.from('site_settings').select('nav_menu, logo_footer_url, brand_name').eq('id', 1).maybeSingle(),
+        supabase.from('site_settings').select('nav_menu, logo_footer_url, brand_name, company_name').eq('id', 1).maybeSingle(),
       ]);
       if (ci.data) setContact(ci.data);
-      if (ss.data?.nav_menu && Array.isArray(ss.data.nav_menu) && ss.data.nav_menu.length > 0) {
-        setNavLinks(ss.data.nav_menu);
+      if (ss.data) {
+        setSettings(ss.data as SiteSettings);
+        if (ss.data.nav_menu && Array.isArray(ss.data.nav_menu) && ss.data.nav_menu.length > 0) {
+          setNavLinks(ss.data.nav_menu);
+        }
+        if (ss.data.logo_footer_url) setLogoUrl(ss.data.logo_footer_url);
       }
-      if (ss.data?.logo_footer_url) setLogoUrl(ss.data.logo_footer_url);
     })();
   }, []);
 
@@ -62,13 +66,13 @@ const Footer: React.FC = () => {
             {logoUrl ? (
               <Link to="/" className="flex items-center gap-3 mb-4">
                 <img src={logoUrl} alt="Logo" className="h-11 w-11 object-contain" />
-                <span className="font-heading font-extrabold text-xl text-gold">TRANS SECURITY</span>
+                <span className="font-heading font-extrabold text-xl text-gold">{settings?.brand_name || 'TRANS SECURITY'}</span>
               </Link>
             ) : (
               <Logo variant="light" />
             )}
             <p className="mt-5 text-white/70 text-sm leading-relaxed">
-              Trans Security Indonesia — penyedia jasa keamanan profesional berizin resmi Mabes Polri. Melindungi aset, manusia, dan reputasi sejak 2013.
+              {settings?.company_name || 'Trans Security Indonesia'} — penyedia jasa keamanan profesional berizin resmi Mabes Polri. Melindungi aset, manusia, dan reputasi sejak 2013.
             </p>
             <div className="flex gap-3 mt-6">
               <a href="#" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-white/10 hover:bg-gold hover:text-navy flex items-center justify-center transition-all">
@@ -145,7 +149,7 @@ const Footer: React.FC = () => {
 
       <div className="border-t border-white/10 py-5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-white/60">
-          <p>© 2026 Trans Security Indonesia. All Rights Reserved.</p>
+          <p>© 2026 {settings?.company_name || 'Trans Security Indonesia'}. All Rights Reserved.</p>
           <p>Berizin Resmi Mabes Polri | SIA | ABUJAPI</p>
         </div>
       </div>

@@ -10,13 +10,15 @@ interface LogoProps {
 const Logo: React.FC<LogoProps> = ({ variant = 'dark', size = 'md' }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [brandName, setBrandName] = useState<string>('TRANS SECURITY');
+  const [companyName, setCompanyName] = useState<string>('Trans Security Indonesia');
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('site_settings').select('logo_header_url, brand_name').eq('id', 1).maybeSingle();
+      const { data } = await supabase.from('site_settings').select('logo_header_url, brand_name, company_name').eq('id', 1).maybeSingle();
       if (data) {
         if (data.logo_header_url) setLogoUrl(data.logo_header_url);
         if (data.brand_name) setBrandName(data.brand_name);
+        if (data.company_name) setCompanyName(data.company_name);
       }
     })();
   }, []);
@@ -57,7 +59,7 @@ const Logo: React.FC<LogoProps> = ({ variant = 'dark', size = 'md' }) => {
           {brandName}
         </span>
         <span className={`text-[10px] uppercase tracking-[0.2em] ${variant === 'light' ? 'text-white/70' : 'text-navy/60'} hidden sm:block`}>
-          Trans Security Indonesia
+          {companyName}
         </span>
       </div>
     </Link>

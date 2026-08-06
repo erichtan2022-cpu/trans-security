@@ -25,7 +25,7 @@
 -- ============ SITE SETTINGS (single row) ============
 CREATE TABLE IF NOT EXISTS site_settings (
   id integer PRIMARY KEY DEFAULT 1,
-  company_name text NOT NULL DEFAULT 'PT Trans Kontinental Indonesia',
+  company_name text NOT NULL DEFAULT 'Trans Security Indonesia',
   brand_name text NOT NULL DEFAULT 'TRANS SECURITY',
   logo_header_url text,
   logo_footer_url text,
