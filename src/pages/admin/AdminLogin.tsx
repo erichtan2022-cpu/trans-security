@@ -30,7 +30,7 @@ const AdminLogin: React.FC = () => {
     const { error } = await signIn(email, password);
     setSubmitting(false);
     if (error) {
-      setError('Email atau password salah. Silakan coba lagi.');
+      setError(error);
     } else {
       navigate('/admin');
     }
@@ -119,3 +119,5 @@ const AdminLogin: React.FC = () => {
 };
 
 export default AdminLogin;
+
+export default AdminLogin
