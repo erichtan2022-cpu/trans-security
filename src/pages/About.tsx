@@ -10,17 +10,42 @@ const About: React.FC = () => {
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [legality, setLegality] = useState<LegalityItem[]>([]);
   const [directors, setDirectors] = useState<Director[]>([]);
+  const [profile, setProfile] = useState<{
+    eyebrow: string;
+    title: string;
+    paragraph_1: string;
+    paragraph_2: string;
+    vision: string;
+    mission: string;
+    image: string;
+    badge_number: string;
+    badge_label: string;
+  } | null>(null);
 
   useEffect(() => {
     (async () => {
-      const [t, l, d] = await Promise.all([
+      const [t, l, d, s] = await Promise.all([
         supabase.from('timeline').select('*').order('sort_order'),
         supabase.from('legality').select('*').order('sort_order'),
         supabase.from('directors').select('*').order('sort_order'),
+        supabase.from('site_settings').select('profile_eyebrow, profile_title, profile_paragraph_1, profile_paragraph_2, profile_vision, profile_mission, profile_image, profile_badge_number, profile_badge_label').eq('id', 1).maybeSingle(),
       ]);
       setTimeline(t.data ?? []);
       setLegality(l.data ?? []);
       setDirectors(d.data ?? []);
+      if (s.data) {
+        setProfile({
+          eyebrow: s.data.profile_eyebrow,
+          title: s.data.profile_title,
+          paragraph_1: s.data.profile_paragraph_1,
+          paragraph_2: s.data.profile_paragraph_2,
+          vision: s.data.profile_vision,
+          mission: s.data.profile_mission,
+          image: s.data.profile_image,
+          badge_number: s.data.profile_badge_number,
+          badge_label: s.data.profile_badge_label,
+        });
+      }
     })();
   }, []);
 
@@ -36,39 +61,39 @@ const About: React.FC = () => {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-14 items-center">
           <div>
-            <span className="uppercase tracking-[0.3em] text-xs font-bold text-gold">Profil Perusahaan</span>
+            <span className="uppercase tracking-[0.3em] text-xs font-bold text-gold">{profile?.eyebrow || 'Profil Perusahaan'}</span>
             <h2 className="font-heading text-3xl lg:text-4xl font-extrabold text-navy mt-3 mb-4">
-              Trans Security Indonesia
+              {profile?.title || 'Trans Security Indonesia'}
             </h2>
             <div className="w-16 h-1 bg-gold mb-5"></div>
             <p className="text-navy/80 leading-relaxed mb-4">
-              Berdiri sejak <strong>tahun 2013</strong>, Trans Security Indonesia adalah perusahaan jasa keamanan profesional yang berizin resmi dari Mabes Polri. Kami melayani sektor korporat, manufaktur, perbankan, perumahan, dan pusat perbelanjaan dengan standar layanan kelas dunia.
+              {profile?.paragraph_1 || 'Berdiri sejak tahun 2013, Trans Security Indonesia adalah perusahaan jasa keamanan profesional yang berizin resmi dari Mabes Polri. Kami melayani sektor korporat, manufaktur, perbankan, perumahan, dan pusat perbelanjaan dengan standar layanan kelas dunia.'}
             </p>
             <p className="text-navy/80 leading-relaxed mb-6">
-              Dengan lebih dari 1.000 personel terlatih, command center 24/7, dan teknologi keamanan termutakhir, kami menjadi mitra terpercaya untuk melindungi aset, manusia, dan reputasi bisnis Anda.
+              {profile?.paragraph_2 || 'Dengan lebih dari 1.000 personel terlatih, command center 24/7, dan teknologi keamanan termutakhir, kami menjadi mitra terpercaya untuk melindungi aset, manusia, dan reputasi bisnis Anda.'}
             </p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-grey p-5 rounded-lg border-l-4 border-gold">
                 <Eye className="w-6 h-6 text-gold mb-2" />
                 <h4 className="font-heading font-bold text-navy mb-1">Visi</h4>
-                <p className="text-sm text-navy/70">Menjadi perusahaan jasa pengamanan terdepan di Indonesia.</p>
+                <p className="text-sm text-navy/70">{profile?.vision || 'Menjadi perusahaan jasa pengamanan terdepan di Indonesia.'}</p>
               </div>
               <div className="bg-grey p-5 rounded-lg border-l-4 border-gold">
                 <Target className="w-6 h-6 text-gold mb-2" />
                 <h4 className="font-heading font-bold text-navy mb-1">Misi</h4>
-                <p className="text-sm text-navy/70">Memberikan layanan profesional dengan SDM berkualitas dan teknologi modern.</p>
+                <p className="text-sm text-navy/70">{profile?.mission || 'Memberikan layanan profesional dengan SDM berkualitas dan teknologi modern.'}</p>
               </div>
             </div>
           </div>
           <div className="relative">
             <img
-              src="https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496450891_3f72151f.jpg"
+              src={profile?.image || "https://d64gsuwffb70l.cloudfront.net/6a01b32adf2cf6860d4ff564_1778496450891_3f72151f.jpg"}
               alt="Command Center"
               className="rounded-xl shadow-2xl"
             />
             <div className="absolute -bottom-6 -left-6 bg-gold text-navy p-6 rounded-xl shadow-xl hidden sm:block">
-              <p className="font-heading text-3xl font-extrabold">10+</p>
-              <p className="text-sm font-semibold uppercase tracking-wider">Tahun Pengalaman</p>
+              <p className="font-heading text-3xl font-extrabold">{profile?.badge_number || '10+'}</p>
+              <p className="text-sm font-semibold uppercase tracking-wider">{profile?.badge_label || 'Tahun Pengalaman'}</p>
             </div>
           </div>
         </div>

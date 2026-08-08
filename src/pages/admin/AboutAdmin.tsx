@@ -7,25 +7,63 @@ import ImageInput from '@/components/admin/ImageInput';
 interface Director { id?: string; name: string; role: string; img: string; sort_order: number; }
 interface TimelineItem { id?: string; year: string; title: string; description: string; sort_order: number; }
 interface LegalityItem { id?: string; title: string; description: string; sort_order: number; }
+interface Profile {
+  profile_eyebrow: string;
+  profile_title: string;
+  profile_paragraph_1: string;
+  profile_paragraph_2: string;
+  profile_vision: string;
+  profile_mission: string;
+  profile_image: string;
+  profile_badge_number: string;
+  profile_badge_label: string;
+}
+
+const emptyProfile: Profile = {
+  profile_eyebrow: 'Profil Perusahaan',
+  profile_title: 'Trans Security Indonesia',
+  profile_paragraph_1: '',
+  profile_paragraph_2: '',
+  profile_vision: '',
+  profile_mission: '',
+  profile_image: '',
+  profile_badge_number: '10+',
+  profile_badge_label: 'Tahun Pengalaman',
+};
 
 const AboutAdmin: React.FC = () => {
   const [directors, setDirectors] = useState<Director[]>([]);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [legality, setLegality] = useState<LegalityItem[]>([]);
+  const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [tab, setTab] = useState<'directors' | 'timeline' | 'legality'>('directors');
+  const [tab, setTab] = useState<'profile' | 'directors' | 'timeline' | 'legality'>('profile');
 
   useEffect(() => {
     (async () => {
-      const [d, t, l] = await Promise.all([
+      const [d, t, l, s] = await Promise.all([
         supabase.from('directors').select('*').order('sort_order'),
         supabase.from('timeline').select('*').order('sort_order'),
         supabase.from('legality').select('*').order('sort_order'),
+        supabase.from('site_settings').select('profile_eyebrow, profile_title, profile_paragraph_1, profile_paragraph_2, profile_vision, profile_mission, profile_image, profile_badge_number, profile_badge_label').eq('id', 1).maybeSingle(),
       ]);
       setDirectors(d.data ?? []);
       setTimeline(t.data ?? []);
       setLegality(l.data ?? []);
+      if (s.data) {
+        setProfile({
+          profile_eyebrow: s.data.profile_eyebrow ?? emptyProfile.profile_eyebrow,
+          profile_title: s.data.profile_title ?? emptyProfile.profile_title,
+          profile_paragraph_1: s.data.profile_paragraph_1 ?? '',
+          profile_paragraph_2: s.data.profile_paragraph_2 ?? '',
+          profile_vision: s.data.profile_vision ?? '',
+          profile_mission: s.data.profile_mission ?? '',
+          profile_image: s.data.profile_image ?? '',
+          profile_badge_number: s.data.profile_badge_number ?? '10+',
+          profile_badge_label: s.data.profile_badge_label ?? 'Tahun Pengalaman',
+        });
+      }
       setLoading(false);
     })();
   }, []);
@@ -33,6 +71,17 @@ const AboutAdmin: React.FC = () => {
   const saveAll = async () => {
     setSaving(true);
     await Promise.all([
+      supabase.from('site_settings').update({
+        profile_eyebrow: profile.profile_eyebrow,
+        profile_title: profile.profile_title,
+        profile_paragraph_1: profile.profile_paragraph_1,
+        profile_paragraph_2: profile.profile_paragraph_2,
+        profile_vision: profile.profile_vision,
+        profile_mission: profile.profile_mission,
+        profile_image: profile.profile_image,
+        profile_badge_number: profile.profile_badge_number,
+        profile_badge_label: profile.profile_badge_label,
+      }).eq('id', 1),
       ...directors.map(d => d.id ? supabase.from('directors').update(d).eq('id', d.id) : supabase.from('directors').insert(d)),
       ...timeline.map(t => t.id ? supabase.from('timeline').update(t).eq('id', t.id) : supabase.from('timeline').insert(t)),
       ...legality.map(l => l.id ? supabase.from('legality').update(l).eq('id', l.id) : supabase.from('legality').insert(l)),
@@ -57,6 +106,7 @@ const AboutAdmin: React.FC = () => {
 
       <div className="flex gap-2 mb-6">
         {([
+          { key: 'profile', label: 'Profil Perusahaan' },
           { key: 'directors', label: 'Tim Direktur' },
           { key: 'timeline', label: 'Linimasa' },
           { key: 'legality', label: 'Legalitas' },
@@ -64,6 +114,51 @@ const AboutAdmin: React.FC = () => {
           <button key={t.key} onClick={() => setTab(t.key)} className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${tab === t.key ? 'bg-navy text-gold' : 'bg-white text-navy hover:bg-grey'}`}>{t.label}</button>
         ))}
       </div>
+
+      {/* Profile */}
+      {tab === 'profile' && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-xl shadow-sm border border-navy/5 p-5 space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-navy/60 mb-1">Label Kecil (Eyebrow)</label>
+              <input type="text" value={profile.profile_eyebrow} onChange={e => setProfile({ ...profile, profile_eyebrow: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-navy/60 mb-1">Judul Section</label>
+              <input type="text" value={profile.profile_title} onChange={e => setProfile({ ...profile, profile_title: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-navy/60 mb-1">Paragraf 1</label>
+              <textarea rows={3} value={profile.profile_paragraph_1} onChange={e => setProfile({ ...profile, profile_paragraph_1: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-navy/60 mb-1">Paragraf 2</label>
+              <textarea rows={3} value={profile.profile_paragraph_2} onChange={e => setProfile({ ...profile, profile_paragraph_2: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-navy/60 mb-1">Visi</label>
+                <textarea rows={2} value={profile.profile_vision} onChange={e => setProfile({ ...profile, profile_vision: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-navy/60 mb-1">Misi</label>
+                <textarea rows={2} value={profile.profile_mission} onChange={e => setProfile({ ...profile, profile_mission: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+              </div>
+            </div>
+            <ImageInput value={profile.profile_image} onChange={v => setProfile({ ...profile, profile_image: v })} label="Gambar Section" />
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-navy/60 mb-1">Nomor Badge</label>
+                <input type="text" value={profile.profile_badge_number} onChange={e => setProfile({ ...profile, profile_badge_number: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-navy/60 mb-1">Label Badge</label>
+                <input type="text" value={profile.profile_badge_label} onChange={e => setProfile({ ...profile, profile_badge_label: e.target.value })} className="w-full px-3 py-2 rounded-lg border border-navy/10 focus:border-gold focus:outline-none text-sm" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Directors */}
       {tab === 'directors' && (
